@@ -4,13 +4,20 @@
 	use Livewire\Volt\Component;
 	
 	new class extends Component {
-	
+		
+		public $products;
+		
+		public function mount() : void
+		{
+			$this->products = \App\Helpers\CartManagement::getCartItemsFromCookie();
+		}
 	
 	};
 ?>
 
 
 <div class="w-full max-w-[85rem] py-10 px-4 sm:px-6 lg:px-8 mx-auto">
+	{{--	{{json_encode($products)}}--}}
 	<div class="container mx-auto px-4">
 		<h1 class="text-2xl font-semibold mb-4">Shopping Cart</h1>
 		<div class="flex flex-col md:flex-row gap-4">
@@ -27,6 +34,13 @@
 						</tr>
 						</thead>
 						<tbody>
+						
+						{{--						@foreach($products as $product)--}}
+						{{--							<tr>--}}
+						{{--								<td>{{$product->id}}</td>--}}
+						{{--							</tr>--}}
+						{{--						@endforeach--}}
+						
 						<tr>
 							<td class="py-4">
 								<div class="flex items-center">
