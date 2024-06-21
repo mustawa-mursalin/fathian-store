@@ -48,6 +48,47 @@
 			return count($cart_items);
 		}
 		
+		// add item to cart with quantity
+		static public function addItemToCartWithQty($product_id, $qty) : int
+		{
+			$cart_items    = self::getCartItemsFromCookie();
+			$existing_item = null;
+			
+			foreach ($cart_items as $key => $item) {
+				if ($item['product_id'] == $product_id) {
+					$existing_item = $key;
+					break;
+				}
+			}
+			
+			if ($existing_item !== null) {
+				$cart_items[$existing_item]['quantity']     = $qty;
+				$cart_items[$existing_item]['total_amount'] = $cart_items[$existing_item]['quantity'] * $cart_items[$existing_item]['unit_amount'];
+			}
+			else {
+				$product = Product::findOrFail($product_id);
+				if ($product) {
+					
+					if (($product->images != null)) {
+						$product_image = $product->images[0];
+					}
+					else {
+						$product_image = 'default.jpg';
+					}
+					$cart_items[] = [
+						'product_id'   => $product->id,
+						'name'         => $product->name,
+						'image'        => $product_image,
+						'quantity'     => $qty,
+						'unit_amount'  => $product->price,
+						'total_amount' => $product->price,
+					];
+				}
+			}
+			self::addCartItemToCookie($cart_items);
+			return count($cart_items);
+		}
+		
 		// remove item from cart
 		static public function removeItemFromCart($product_id) : array
 		{

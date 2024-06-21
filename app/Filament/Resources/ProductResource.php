@@ -52,6 +52,10 @@
 							Forms\Components\FileUpload::make('images')
 								->label('')
 								->multiple()
+								->image()
+								->imageResizeMode('cover')
+								->imageCropAspectRatio('4:3')
+								->imageEditor()
 								->directory('products')
 								->maxFiles(5)
 								->reorderable()->columnSpanFull(),

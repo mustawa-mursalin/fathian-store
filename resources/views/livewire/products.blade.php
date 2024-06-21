@@ -8,6 +8,7 @@
 	
 	new #[Title('Products')] class extends Component {
 		use \Livewire\WithPagination;
+		use \Jantinnerezo\LivewireAlert\LivewireAlert;
 		
 		//		public function rendering(View $view) : void
 		//		{
@@ -29,26 +30,24 @@
 		public int    $max_price;
 		public int    $price_range;
 		public string $sort = 'latest';
-		public array  $cart = [];
 		
-		
-		public function loadCart() : void
-		{
-			$this->cart = array_column(\App\Helpers\CartManagement::getCartItemsFromCookie(), 'product_id');
-		}
 		
 		public function addToCart($product_id) : void
 		{
 			$total_count = \App\Helpers\CartManagement::addItemToCart($product_id);
 			$this->dispatch('update-cart-count', total_count : $total_count);
-			$this->loadCart();
+			
+			$this->alert('success', 'Product added to cart successfully.', [
+				'position'         => 'top-end',
+				'timer'            => 3000,
+				'toast'            => true,
+				'timerProgressBar' => false,
+			]);
 		}
 		
 		
 		public function with() : array
 		{
-			$this->loadCart();
-			
 			$this->min_price = \App\Models\Product::min('price');
 			$this->max_price = \App\Models\Product::max('price');
 			$products        = \App\Models\Product::where('is_active', 1);
@@ -82,7 +81,6 @@
 				'products'   => $products->paginate(9),
 				'brands'     => \App\Models\Brand::has('products')->get(),
 				'categories' => \App\Models\Category::has('products')->get(),
-				'carts'      => $this->cart,
 			];
 		}
 	};
@@ -203,26 +201,17 @@
 										
 										{{--										@dd($product['id'],$carts)--}}
 										
-										@if(in_array($product['id'],$cart))
-											<button disabled
-											        class="text-red-500 flex items-center space-x-2 dark:text-red-500 hover:text-red-500 dark:hover:text-red-300">
-												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red"
-												     class="w-4 h-4 bi bi-cart3 " viewBox="0 0 16 16">
-													<path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l.84 4.479 9.144-.459L13.89 4H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
-												</svg>
-												<span>Sudah di Keranjang</span>
-											</button>
-										@else
-											<button wire:click.prevent="addToCart({{$product->id}})"
-											        class="text-gray-500 flex items-center space-x-2 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-300">
-												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-												     class="w-4 h-4 bi bi-cart3 " viewBox="0 0 16 16">
-													<path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l.84 4.479 9.144-.459L13.89 4H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
-												</svg>
-												<span wire:loading.remove>Tambah ke Keranjang</span><span wire:loading
-												                                                          wire:loading.target="addToCart({{$product->id}})">Adding...</span>
-											</button>
-										@endif
+										
+										<button wire:click.prevent="addToCart({{$product->id}})"
+										        class="text-gray-500 flex items-center space-x-2 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-300">
+											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+											     class="w-4 h-4 bi bi-cart3 " viewBox="0 0 16 16">
+												<path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l.84 4.479 9.144-.459L13.89 4H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
+											</svg>
+											<span wire:loading.remove
+											      wire:target="addToCart({{$product->id}})">Add to Cart</span><span wire:loading
+											                                                                        wire:target="addToCart({{$product->id}})">Adding...</span>
+										</button>
 									
 									</div>
 								</div>
